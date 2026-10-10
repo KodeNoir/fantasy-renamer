@@ -4,8 +4,8 @@
 #  - À chaque "tag" de version (ex. v1.0.0) : compile l'app pour Apple Silicon
 #    ET pour Intel, teste l'IA pour de vrai, puis publie les deux ZIP dans
 #    l'onglet "Releases" du dépôt.
-#  - Bouton "Run workflow" (onglet Actions) : même chose sans publier,
-#    les apps sont téléchargeables dans "Artifacts".
+#  - Bouton "Run workflow" (onglet Actions) : sans numéro de version = simple
+#    essai (apps dans "Artifacts") ; avec un numéro (ex. v1.0.1) = publication.
 # =============================================================================
 name: Compiler les apps macOS
 
@@ -13,6 +13,11 @@ on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Numéro de version à publier (ex. v1.0.1). Laisser vide pour un simple essai."
+        required: false
+        default: ""
 
 permissions:
   contents: write   # nécessaire pour créer la Release
@@ -91,7 +96,7 @@ jobs:
   release:
     name: Publier la Release
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.version != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -100,6 +105,10 @@ jobs:
           merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
+          # Tag poussé (git push origin v1.0.0) ou version saisie dans "Run workflow"
+          tag_name: ${{ inputs.version || github.ref_name }}
+          target_commitish: ${{ github.sha }}
+          name: Fantasy Renamer ${{ inputs.version || github.ref_name }}
           files: zips/*.zip
           body: |
             ## Télécharger Fantasy Renamer

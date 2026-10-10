@@ -315,7 +315,9 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-Environ 20 minutes plus tard, les deux ZIP apparaissent dans l'onglet **Releases**. Pour un simple essai sans publication : onglet **Actions** → *Compiler les apps macOS* → **Run workflow**. Les ZIP sont alors dans la section *Artifacts* du run.
+Tu peux aussi publier sans Terminal : onglet **Actions** → *Compiler les apps macOS* → **Run workflow**, puis saisis le numéro de version (ex. `v1.0.1`).
+
+Environ 15 minutes plus tard, les deux ZIP apparaissent dans l'onglet **Releases**. Pour un simple essai sans publication : onglet **Actions** → *Compiler les apps macOS* → **Run workflow** en laissant le numéro de version vide. Les ZIP sont alors dans la section *Artifacts* du run.
 
 > Les Mac de GitHub sont des machines virtuelles sans GPU : les tests y tournent en mode CPU. Ça vérifie au passage que la bascule automatique vers le CPU fonctionne.
 
