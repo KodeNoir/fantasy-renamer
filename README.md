@@ -52,8 +52,10 @@ Pour mettre à jour plus tard, il suffit de relancer la même ligne.
    - Mac à **puce Apple** (M1, M2, M3, M4) → `FantasyRenamer-arm64.zip`
    - Mac **Intel** → `FantasyRenamer-x86_64.zip`
    *(Pour savoir quelle puce a ton Mac : menu  → À propos de ce Mac.)*
-2. Double-clique sur le ZIP, puis glisse l'app dans **Applications**.
-3. Ouvre l'app. Si macOS affiche « Apple n'a pas pu confirmer… » : clique sur **Terminé**, puis va dans **Réglages Système → Confidentialité et sécurité**, descends et clique sur **Ouvrir quand même**.
+2. Double-clique sur le ZIP. Tu obtiens un dossier contenant **`Fantasy Renamer.app`** et **`OUVREZ-MOI_D-ABORD.applescript`**.
+3. **Pour éviter le blocage de macOS, en un clic** : double-clique sur **`OUVREZ-MOI_D-ABORD.applescript`** (il s'ouvre dans l'Éditeur de script d'Apple), puis clique sur le bouton **▶︎ Exécuter** en haut à droite. Le script retire le blocage et lance l'app. Tu peux ensuite glisser l'app dans **Applications**.
+   > Ce script n'agit que sur l'app placée à côté de lui ; son code est entièrement lisible avant de l'exécuter.
+4. **Méthode sans le script** (si tu préfères) : glisse directement l'app dans **Applications**, ouvre-la, et si macOS affiche « Apple n'a pas pu confirmer… », clique sur **Terminé**, puis va dans **Réglages Système → Confidentialité et sécurité** et clique sur **Ouvrir quand même**.
 
 ### Autre méthode : lancer depuis le code source
 
@@ -273,6 +275,7 @@ Le script applique ensuite une signature *ad hoc* (`codesign --sign -`), obligat
 ```
 FantasyRenamer/
 ├── Lancer Fantasy Renamer.command   # lanceur double-clic (venv + dépendances + app)
+├── OUVREZ-MOI_D-ABORD.applescript    # script « 1 clic » qui retire le blocage macOS (livré dans le ZIP)
 ├── build_app.sh                     # compilation .app (PyInstaller), arm64 ou x86_64
 ├── main.py                          # point d'entrée (interface ou --cli)
 ├── requirements.txt                 # dépendances avec marqueurs Intel / Apple Silicon

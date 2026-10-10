@@ -67,8 +67,18 @@ rm -rf build "dist/$APP_NAME.app" "dist/$APP_NAME-$ARCH.app"
 mv "dist/$APP_NAME.app" "dist/$APP_NAME-$ARCH.app"
 # Signature "ad hoc" (obligatoire pour lancer une app sur puce Apple)
 codesign --force --deep --sign - "dist/$APP_NAME-$ARCH.app" 2>/dev/null || true
-# Zip qui préserve la structure du .app (à utiliser pour l'envoyer / sur GitHub Releases)
-ditto -c -k --keepParent "dist/$APP_NAME-$ARCH.app" "dist/FantasyRenamer-$ARCH.zip"
+# Contenu du ZIP : l'app + le script « 1 clic » qui retire le blocage macOS.
+# On copie l'app sous son nom simple « Fantasy Renamer.app » (le script la cherche
+# sous ce nom), à côté de OUVREZ-MOI_D-ABORD.applescript. L'app -$ARCH.app d'origine
+# est conservée pour l'étape de test du workflow.
+STAGE="dist/stage-$ARCH"
+rm -rf "$STAGE"
+mkdir -p "$STAGE"
+ditto "dist/$APP_NAME-$ARCH.app" "$STAGE/$APP_NAME.app"
+cp "OUVREZ-MOI_D-ABORD.applescript" "$STAGE/OUVREZ-MOI_D-ABORD.applescript"
+# -c -k sans --keepParent : le ZIP contient directement les deux éléments.
+ditto -c -k "$STAGE" "dist/FantasyRenamer-$ARCH.zip"
+rm -rf "$STAGE"
 
 echo ""
 echo "✅ Terminé : dist/$APP_NAME-$ARCH.app"
