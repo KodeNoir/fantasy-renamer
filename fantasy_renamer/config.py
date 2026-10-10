@@ -83,20 +83,51 @@ CATEGORY_PROMPTS = {
         "a photo of a room interior",
         "a painting of a fantasy landscape",
     ],
-    CATEGORY_CREATURE: [
-        "a photo of a dragon",
-        "a painting of a monster",
-        "a fantasy creature with claws and fangs",
-        "a giant wolf-like beast",
-        "a digital illustration of a mythical beast",
-        "a photo of a wild animal",
-        "a scaly reptilian creature",
-    ],
 }
 
 # En dessous de ce niveau de confiance, l'image est signalée « à vérifier »
 # dans le journal et le rapport (ex. créature, silhouette encapuchonnée…).
 LOW_CONFIDENCE = 0.75
+
+# Catégories départagées par la 2e étape (homme / femme / lieu)
+MAIN_CATEGORIES = [CATEGORY_MALE, CATEGORY_FEMALE, CATEGORY_PLACE]
+
+# 1re étape : « porte » qui détecte les créatures NON humaines.
+# Un personnage avec des cornes, des oreilles d'elfe ou de renard reste un
+# humanoïde (donc homme/femme) : seules les vraies bêtes deviennent « créature ».
+GATE_HUMANOID = "humanoide"
+GATE_BEAST = "bete"
+GATE_SCENERY = "decor"
+GATE_PROMPTS = {
+    GATE_HUMANOID: [
+        "a portrait of a person",
+        "a woman with horns",
+        "a man with horns",
+        "an elf with pointed ears",
+        "a woman with fox ears",
+        "a fantasy character with a human face and body",
+        "a demon girl",
+        "a hooded figure",
+    ],
+    GATE_BEAST: [
+        "a dragon",
+        "a wolf",
+        "a four-legged beast",
+        "a monster with an animal head",
+        "a wild animal",
+        "a giant reptile",
+        "a creature with no human face",
+    ],
+    GATE_SCENERY: [
+        "a landscape with no people or animals",
+        "a castle",
+        "a city",
+        "a forest",
+        "a room interior",
+    ],
+}
+# La créature est retenue si « bête » gagne avec au moins cette probabilité.
+CREATURE_MIN_PROB = 0.5
 
 # --------------------------------------------------------------------------- #
 # Fichiers images

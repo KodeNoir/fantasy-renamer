@@ -112,7 +112,9 @@ Le bouton **Démarrer** devient **Arrêter** pendant le traitement : l'arrêt se
 
 [CLIP](https://huggingface.co/openai/clip-vit-base-patch32) est un modèle qui sait comparer une **image** et une **phrase**. On lui présente plusieurs descriptions par catégorie (« a portrait of a man », « a photo of a landscape », « a painting of a woman »…). Leurs vecteurs sont moyennés (*prompt ensembling*) et la catégorie la plus proche de l'image l'emporte. Il n'y a aucun entraînement à faire : c'est le principe du *zero-shot*.
 
-Ces descriptions se trouvent dans `fantasy_renamer/config.py` (`CATEGORY_PROMPTS`). Tu peux en ajouter si certaines images sont mal classées, par exemple `"a photo of an elf"` pour la catégorie femme.
+La décision se fait **en deux étapes**. D'abord, une « porte » détermine si l'image montre un personnage humanoïde, une bête non humaine (dragon, loup, monstre) ou un décor. Seules les vraies bêtes deviennent des **Créatures**. Un personnage avec des cornes, des oreilles d'elfe ou de renard reste un humanoïde. Ensuite, si ce n'est pas une créature, l'image est classée **homme**, **femme** ou **lieu**.
+
+Ces descriptions se trouvent dans `fantasy_renamer/config.py` (`GATE_PROMPTS` et `CATEGORY_PROMPTS`). Tu peux en ajouter si certaines images sont mal classées, par exemple `"a photo of an elf"` pour la catégorie femme.
 
 ### Détection automatique du matériel
 

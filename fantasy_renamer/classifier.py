@@ -124,7 +124,9 @@ class ImageClassifier:
         self._torch = None
         self._model = None
         self._processor = None
-        self._class_embeddings = None  # tenseur [nb_catégories, dim]
+        self._class_embeddings = None  # homme/femme/lieu
+        self._gate_embeddings = None   # humanoïde/bête/décor
+        self._gate_order = []
         self._logit_scale = None
 
     @property
@@ -179,40 +181,57 @@ class ImageClassifier:
         self._prepare_text_embeddings()
         on_status("info", "Modèle IA prêt.")
 
-    def _prepare_text_embeddings(self) -> None:
-        """Calcule UNE SEULE FOIS le vecteur moyen de chaque catégorie."""
+    def _embed_classes(self, prompts_by_class: Dict[str, list], order: list):
+        """Vecteur moyen normalisé de chaque classe (prompt ensembling)."""
         torch = self._torch
         device = self.device_info.torch_device
-        class_vectors = []
+        vectors = []
         with torch.inference_mode():
-            for category in config.CATEGORIES:
-                prompts = config.CATEGORY_PROMPTS[category]
-                tokens = self._processor(text=prompts, return_tensors="pt", padding=True)
+            for name in order:
+                tokens = self._processor(text=prompts_by_class[name], return_tensors="pt", padding=True)
                 tokens = {k: v.to(device) for k, v in tokens.items()}
                 feats = self._model.get_text_features(**tokens)
                 feats = feats / feats.norm(dim=-1, keepdim=True)
                 mean = feats.mean(dim=0)
-                class_vectors.append(mean / mean.norm())
-        self._class_embeddings = torch.stack(class_vectors)  # [3, dim]
+                vectors.append(mean / mean.norm())
+        return torch.stack(vectors)
+
+    def _prepare_text_embeddings(self) -> None:
+        """Calcule UNE SEULE FOIS les vecteurs des deux étapes."""
+        self._gate_order = list(config.GATE_PROMPTS.keys())
+        self._gate_embeddings = self._embed_classes(config.GATE_PROMPTS, self._gate_order)
+        self._class_embeddings = self._embed_classes(config.CATEGORY_PROMPTS, config.MAIN_CATEGORIES)
 
     def classify_pil(self, image: Image.Image) -> ClassificationResult:
+        """
+        Étape 1 : humanoïde / bête / décor. Si « bête » l'emporte nettement,
+        c'est une créature. Sinon, étape 2 : homme / femme / lieu.
+        """
         torch = self._torch
         device = self.device_info.torch_device
-        inputs = outputs = img_feats = logits = probs = None
+        inputs = img_feats = None
         try:
             with torch.inference_mode():
                 inputs = self._processor(images=image, return_tensors="pt")
                 pixel_values = inputs["pixel_values"].to(device)
                 img_feats = self._model.get_image_features(pixel_values=pixel_values)
                 img_feats = img_feats / img_feats.norm(dim=-1, keepdim=True)
-                logits = self._logit_scale * img_feats @ self._class_embeddings.T
-                probs = logits.softmax(dim=-1)[0].float().cpu().tolist()
-            scores = {cat: float(p) for cat, p in zip(config.CATEGORIES, probs)}
-            best = max(scores, key=scores.get)
+                gate = (self._logit_scale * img_feats @ self._gate_embeddings.T).softmax(dim=-1)[0].float().cpu().tolist()
+                main = (self._logit_scale * img_feats @ self._class_embeddings.T).softmax(dim=-1)[0].float().cpu().tolist()
+
+            gate_scores = dict(zip(self._gate_order, gate))
+            scores = {cat: float(p) for cat, p in zip(config.MAIN_CATEGORIES, main)}
+            beast = gate_scores[config.GATE_BEAST]
+            scores[config.CATEGORY_CREATURE] = float(beast)
+
+            if beast >= config.CREATURE_MIN_PROB and beast == max(gate_scores.values()):
+                return ClassificationResult(config.CATEGORY_CREATURE, float(beast), scores)
+
+            best = max(config.MAIN_CATEGORIES, key=lambda c: scores[c])
             return ClassificationResult(best, scores[best], scores)
         finally:
             # Nettoyage explicite entre chaque image (RAM de l'iMac Intel !)
-            del inputs, outputs, img_feats, logits, probs
+            del inputs, img_feats
             gc.collect()
             empty_device_cache(device)
 
@@ -228,6 +247,6 @@ class ImageClassifier:
     def unload(self) -> None:
         """Libère complètement le modèle (fin de traitement)."""
         device = self.device_info.torch_device if self.device_info else "cpu"
-        self._model = self._processor = self._class_embeddings = None
+        self._model = self._processor = self._class_embeddings = self._gate_embeddings = None
         gc.collect()
         empty_device_cache(device)
