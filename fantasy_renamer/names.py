@@ -75,6 +75,14 @@ SYLLABLES = {
         "end": ["heim", "dor", "mar", "grad", "fell", "garde", "holm", "mere", "ia", "vale",
                 "wood", "reach", "spire", "haven", "moor", "crest", "ford", "keep", "thal", "ion"],
     },
+    config.CATEGORY_CREATURE: {
+        "start": ["Ash", "Bal", "Blight", "Bone", "Brak", "Cinder", "Dire", "Doom", "Drak", "Dread",
+                  "Fang", "Gor", "Grak", "Grim", "Gul", "Kar", "Krag", "Mag", "Mor", "Nyx",
+                  "Ob", "Pyr", "Rag", "Skar", "Thrax", "Ur", "Vor", "Vex", "Wyrm", "Xal", "Zor"],
+        "mid": ["", "", "a", "o", "u", "ra", "ro", "go", "za", "ka"],
+        "end": ["maw", "fang", "claw", "scale", "gath", "roth", "nyx", "rax", "thul", "grim",
+                "wing", "hide", "gor", "dax", "mox", "zul", "ok", "ix", "us", "ath"],
+    },
 }
 
 

@@ -2,7 +2,7 @@
 
 **Renomme automatiquement des lots d'images avec des noms de Fantasy uniques, grâce à une IA qui tourne 100 % en local sur ton Mac.**
 
-Fantasy Renamer regarde chaque image, détermine s'il s'agit d'un **homme**, d'une **femme** ou d'un **lieu / paysage**, puis lui donne un nom adapté (`Aldric.jpg`, `Elowen.png`, `Ravencrest.jpg`…). Les originaux ne sont jamais modifiés : les images renommées sont **copiées** dans le dossier de ton choix.
+Fantasy Renamer regarde chaque image, détermine s'il s'agit d'un **homme**, d'une **femme**, d'un **lieu / paysage** ou d'une **créature** (dragon, bête, monstre), puis lui donne un nom adapté (`Aldric.jpg`, `Elowen.png`, `Ravencrest.jpg`, `Skarnyx.png`…). Les originaux ne sont jamais modifiés : les images renommées sont **copiées** dans le dossier de ton choix.
 
 - 🧠 **IA locale et gratuite** : modèle CLIP d'OpenAI via `transformers`. Pas d'API payante ni de compte, et aucune image n'est envoyée sur Internet.
 - ⚡ **S'adapte au Mac** : accélération GPU **Metal (MPS)** sur puce Apple (M1 à M4), **CPU** sur Mac Intel, avec bascule automatique et sans erreur.
@@ -137,7 +137,7 @@ Le moteur détecté s'affiche en bas de la fenêtre.
 
 ### Noms et mémoire de 30 jours
 
-1. Selon la catégorie, un nom est tiré au hasard dans `data/names_homme.txt`, `names_femme.txt` ou `names_lieu.txt` (près de 500 noms au total).
+1. Selon la catégorie, un nom est tiré au hasard dans `data/names_homme.txt`, `names_femme.txt`, `names_lieu.txt` ou `names_creature.txt` (plus de 600 noms au total).
 2. Les noms attribués il y a moins de **30 jours** sont exclus, quelle que soit la catégorie. Les noms déjà présents dans le dossier destination sont aussi évités, ce qui empêche tout écrasement de fichier.
 3. Si une liste est épuisée, un **générateur procédural de syllabes** prend le relais (`Kaelmir`, `Syllana`, `Drakholm`…), avec une réserve quasi infinie.
 4. Chaque nom est enregistré **immédiatement** dans `history.json` avec sa date. Même en cas de coupure au milieu d'un lot, rien n'est perdu. Les entrées de plus de 30 jours sont purgées automatiquement.
@@ -154,6 +154,7 @@ Ouvre les fichiers du dossier `data/` avec TextEdit :
 data/names_homme.txt
 data/names_femme.txt
 data/names_lieu.txt
+data/names_creature.txt
 ```
 
 Un nom par ligne. Les lignes commençant par `#` sont ignorées. Les noms invalides (avec espace, tiret, chiffre…) sont ignorés automatiquement.
@@ -282,7 +283,8 @@ FantasyRenamer/
 ├── data/
 │   ├── names_homme.txt
 │   ├── names_femme.txt
-│   └── names_lieu.txt
+│   ├── names_lieu.txt
+│   └── names_creature.txt
 ├── fantasy_renamer/
 │   ├── config.py        # réglages : modèle, prompts, formats, 30 jours, chemins
 │   ├── device.py        # détection MPS / CUDA / CPU, Rosetta, vidage du cache

@@ -44,13 +44,15 @@ MODEL_ALLOW_PATTERNS = [
 CATEGORY_MALE = "homme"
 CATEGORY_FEMALE = "femme"
 CATEGORY_PLACE = "lieu"
+CATEGORY_CREATURE = "creature"
 
-CATEGORIES = [CATEGORY_MALE, CATEGORY_FEMALE, CATEGORY_PLACE]
+CATEGORIES = [CATEGORY_MALE, CATEGORY_FEMALE, CATEGORY_PLACE, CATEGORY_CREATURE]
 
 CATEGORY_LABELS_FR = {
     CATEGORY_MALE: "Homme",
     CATEGORY_FEMALE: "Femme",
     CATEGORY_PLACE: "Lieu",
+    CATEGORY_CREATURE: "Créature",
 }
 
 CATEGORY_PROMPTS = {
@@ -80,6 +82,15 @@ CATEGORY_PROMPTS = {
         "a photo of a building or a castle",
         "a photo of a room interior",
         "a painting of a fantasy landscape",
+    ],
+    CATEGORY_CREATURE: [
+        "a photo of a dragon",
+        "a painting of a monster",
+        "a fantasy creature with claws and fangs",
+        "a giant wolf-like beast",
+        "a digital illustration of a mythical beast",
+        "a photo of a wild animal",
+        "a scaly reptilian creature",
     ],
 }
 

@@ -28,7 +28,7 @@ class FakeClassifier:
 
     def classify(self, path):
         load_image_for_analysis(path)          # vraie vérification de l'image
-        cat = {"h": "homme", "f": "femme"}.get(path.name[0], "lieu")
+        cat = {"h": "homme", "f": "femme", "c": "creature"}.get(path.name[0], "lieu")
         return ClassificationResult(cat, 0.9, {cat: 0.9})
 
 
@@ -82,7 +82,7 @@ class TestBatch(unittest.TestCase):
     def _make_source(self, d: Path, n_images=60):
         src = d / "source"; src.mkdir()
         for i in range(n_images):
-            prefix = "hfl"[i % 3]
+            prefix = "hflc"[i % 4]
             Image.new("RGB", (800, 600), (i * 4 % 255, 80, 120)).save(src / f"{prefix}_{i:03}.jpg")
         Image.new("RGBA", (300, 300), (0, 0, 0, 0)).save(src / "f_transparent.png")
         (src / "l_corrompue.jpg").write_bytes(b"\xff\xd8\xff\xe0 pas une vraie image")
