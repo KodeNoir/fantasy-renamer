@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec.bak
+.DS_Store
+.requirements.sha
+.venv-build/
+.venv-build-x86_64/

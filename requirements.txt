@@ -1,0 +1,27 @@
+# ---------------------------------------------------------------------------
+# Fantasy Renamer – dépendances
+# Les "marqueurs" après le point-virgule choisissent automatiquement la bonne
+# version selon le Mac : Intel (x86_64) ou Apple Silicon (arm64).
+# ---------------------------------------------------------------------------
+
+# Interface graphique
+customtkinter==5.2.2
+
+# Images
+Pillow>=10.0
+
+# PyTorch :
+#  - 2.2.2 est la DERNIÈRE version publiée pour les Mac Intel (x86_64).
+#  - Sur Apple Silicon (M1…M4), on prend une version récente (MPS optimisé).
+torch==2.2.2 ; sys_platform == "darwin" and platform_machine == "x86_64"
+torch>=2.2.2 ; sys_platform != "darwin" or platform_machine != "x86_64"
+
+# torch 2.2.2 a été compilé avec NumPy 1.x : NumPy 2 le ferait planter sur Intel.
+numpy>=1.24,<2 ; sys_platform == "darwin" and platform_machine == "x86_64"
+numpy>=1.24 ; sys_platform != "darwin" or platform_machine != "x86_64"
+
+# Modèle CLIP. Version figée : compatible torch 2.2.2 ET capable de lire le
+# fichier pytorch_model.bin d'OpenAI (les versions récentes exigent torch>=2.6).
+transformers==4.46.3
+huggingface_hub>=0.23.2,<1.0
+safetensors>=0.4.1

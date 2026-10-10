@@ -1,0 +1,119 @@
+# =============================================================================
+#  Compilation automatique de Fantasy Renamer sur les Mac de GitHub.
+#
+#  - À chaque "tag" de version (ex. v1.0.0) : compile l'app pour Apple Silicon
+#    ET pour Intel, teste l'IA pour de vrai, puis publie les deux ZIP dans
+#    l'onglet "Releases" du dépôt.
+#  - Bouton "Run workflow" (onglet Actions) : même chose sans publier,
+#    les apps sont téléchargeables dans "Artifacts".
+# =============================================================================
+name: Compiler les apps macOS
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # nécessaire pour créer la Release
+
+jobs:
+  build:
+    name: App ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15          # Mac Apple Silicon (arm64)
+            arch: arm64
+          - runner: macos-15-intel    # Mac Intel (x86_64)
+            arch: x86_64
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Vérifier l'architecture
+        run: |
+          python -c "import platform; print('Architecture Python :', platform.machine())"
+          test "$(python -c 'import platform; print(platform.machine())')" = "${{ matrix.arch }}"
+
+      - name: Installer les dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Tests de la logique (sans IA)
+        run: python -m unittest discover tests -v
+
+      - name: Cache du modèle CLIP
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: clip-vit-base-patch32-v1
+
+      - name: Test réel de l'IA (téléchargement + classification)
+        run: |
+          python main.py --device
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          d = Path("ci_images"); d.mkdir(exist_ok=True)
+          for i in range(5):
+              Image.new("RGB", (640, 480), (40 * i, 120, 200)).save(d / f"image_{i}.jpg")
+          (d / "corrompue.jpg").write_bytes(b"pas une image")
+          PY
+          python main.py --cli ci_images ci_out_script
+          ls ci_out_script
+
+      - name: Compiler l'app (.app)
+        run: bash build_app.sh
+
+      - name: Tester l'app compilée
+        run: |
+          APP="dist/Fantasy Renamer-${{ matrix.arch }}.app/Contents/MacOS/Fantasy Renamer"
+          "$APP" --device
+          "$APP" --cli ci_images ci_out_app
+          ls ci_out_app
+
+      - name: Mettre l'app à disposition (Artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FantasyRenamer-${{ matrix.arch }}
+          path: dist/FantasyRenamer-${{ matrix.arch }}.zip
+
+  release:
+    name: Publier la Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: zips
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: zips/*.zip
+          body: |
+            ## Télécharger Fantasy Renamer
+
+            | Ton Mac | Fichier à télécharger |
+            |---|---|
+            | Puce Apple (M1, M2, M3, M4) | **FantasyRenamer-arm64.zip** |
+            | Processeur Intel | **FantasyRenamer-x86_64.zip** |
+
+            Pour savoir quelle puce a ton Mac : menu  → **À propos de ce Mac**
+            (ligne « Puce » = Apple, ligne « Processeur » = Intel).
+
+            1. Télécharge le bon ZIP et double-clique dessus.
+            2. Glisse l'app dans **Applications**.
+            3. Premier lancement : clic droit → **Ouvrir** (macOS 15+ : Réglages Système →
+               Confidentialité et sécurité → **Ouvrir quand même**).
+            4. Au premier traitement, le modèle d'IA (≈ 600 Mo) se télécharge une seule fois.
