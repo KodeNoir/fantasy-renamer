@@ -137,9 +137,10 @@ class BatchProcessor:
             if outcome.status == "renommé":
                 summary.renamed += 1
                 label = config.CATEGORY_LABELS_FR.get(outcome.category, outcome.category)
+                doubt = "   ⚠️ à vérifier" if outcome.confidence < config.LOW_CONFIDENCE else ""
                 on_event(Event(
                     "file",
-                    f"{src.name}  →  {outcome.new_name}   ({label}, {outcome.confidence:.0%})",
+                    f"{src.name}  →  {outcome.new_name}   ({label}, {outcome.confidence:.0%}){doubt}",
                     index, len(files), {"category": outcome.category},
                 ))
             elif outcome.status == "ignoré":
@@ -193,7 +194,8 @@ class BatchProcessor:
 
         existing.add(name.casefold())
         self.history.add(name, result.category, source_file=src.name)
-        return FileOutcome(src, "renommé", target.name, result.category, result.confidence)
+        reason = "confiance faible : à vérifier" if result.confidence < config.LOW_CONFIDENCE else ""
+        return FileOutcome(src, "renommé", target.name, result.category, result.confidence, reason)
 
     @staticmethod
     def _write_report(dest_dir: Path, summary: BatchSummary) -> Optional[Path]:

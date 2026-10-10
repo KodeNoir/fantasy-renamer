@@ -65,6 +65,13 @@ rm -rf build "dist/$APP_NAME.app" "dist/$APP_NAME-$ARCH.app"
   main.py
 
 mv "dist/$APP_NAME.app" "dist/$APP_NAME-$ARCH.app"
+# Langue de l'app = français (fenêtres système « Choisir », « Annuler »… en français)
+PLIST="dist/$APP_NAME-$ARCH.app/Contents/Info.plist"
+plutil -replace CFBundleDevelopmentRegion -string fr "$PLIST"
+plutil -replace CFBundleLocalizations -json '["fr"]' "$PLIST"
+plutil -replace CFBundleDisplayName -string "$APP_NAME" "$PLIST"
+plutil -replace CFBundleAllowMixedLocalizations -bool true "$PLIST"
+mkdir -p "dist/$APP_NAME-$ARCH.app/Contents/Resources/fr.lproj"
 # Signature "ad hoc" (obligatoire pour lancer une app sur puce Apple)
 codesign --force --deep --sign - "dist/$APP_NAME-$ARCH.app" 2>/dev/null || true
 # Contenu du ZIP : l'app + le script « 1 clic » qui retire le blocage macOS.

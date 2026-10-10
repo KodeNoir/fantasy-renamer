@@ -83,6 +83,10 @@ CATEGORY_PROMPTS = {
     ],
 }
 
+# En dessous de ce niveau de confiance, l'image est signalée « à vérifier »
+# dans le journal et le rapport (ex. créature, silhouette encapuchonnée…).
+LOW_CONFIDENCE = 0.75
+
 # --------------------------------------------------------------------------- #
 # Fichiers images
 # --------------------------------------------------------------------------- #

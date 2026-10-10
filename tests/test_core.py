@@ -143,5 +143,22 @@ class TestBatch(unittest.TestCase):
                 load_image_for_analysis(p)
 
 
+class LowConfidenceClassifier(FakeClassifier):
+    def classify(self, path):
+        load_image_for_analysis(path)
+        return ClassificationResult("homme", 0.6, {"homme": 0.6})
+
+
+class TestLowConfidence(unittest.TestCase):
+    def test_flagged_in_log_and_report(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d); src = d / "src"; src.mkdir()
+            Image.new("RGB", (100, 100)).save(src / "a.jpg")
+            events = []
+            s = BatchProcessor(LowConfidenceClassifier(), NameHistory(d / "h.json")).run(src, d / "out", on_event=events.append)
+            self.assertIn("à vérifier", [e for e in events if e.kind == "file"][0].message)
+            self.assertIn("à vérifier", s.report_path.read_text(encoding="utf-8-sig"))
+
+
 if __name__ == "__main__":
     unittest.main()
