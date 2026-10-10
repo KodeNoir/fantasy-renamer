@@ -121,8 +121,26 @@ jobs:
             Pour savoir quelle puce a ton Mac : menu  → **À propos de ce Mac**
             (ligne « Puce » = Apple, ligne « Processeur » = Intel).
 
-            1. Télécharge le bon ZIP et double-clique dessus.
-            2. Glisse l'app dans **Applications**.
-            3. Premier lancement : clic droit → **Ouvrir** (macOS 15+ : Réglages Système →
-               Confidentialité et sécurité → **Ouvrir quand même**).
-            4. Au premier traitement, le modèle d'IA (≈ 600 Mo) se télécharge une seule fois.
+            ### ⭐ Installation recommandée (aucun blocage de macOS)
+
+            Ouvre l'app **Terminal** (Launchpad → Autres → Terminal), colle cette ligne et appuie sur Entrée :
+
+            ```
+            curl -fsSL https://raw.githubusercontent.com/KodeNoir/fantasy-renamer/main/install.sh | bash
+            ```
+
+            Le script choisit automatiquement la bonne version (Intel ou puce Apple), l'installe dans
+            **Applications**, retire le blocage de macOS et lance l'app.
+
+            ### Installation manuelle
+
+            1. Télécharge le bon ZIP ci-dessous et double-clique dessus, puis glisse l'app dans **Applications**.
+            2. Si macOS affiche « Apple n'a pas pu confirmer… » : clique sur **Terminé**, puis
+               Réglages Système → Confidentialité et sécurité → **Ouvrir quand même**.
+
+            Au premier traitement, le modèle d'IA (≈ 600 Mo) se télécharge une seule fois.
+
+  test-install:
+    name: Tester l'installateur
+    needs: release
+    uses: ./.github/workflows/test-install.yml

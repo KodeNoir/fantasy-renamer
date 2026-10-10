@@ -27,19 +27,33 @@ Fantasy Renamer regarde chaque image, détermine s'il s'agit d'un **homme**, d'u
 
 ## 1. Installation (pour les non-développeurs)
 
-### ⭐ Le plus simple : télécharger l'application toute prête
+### ⭐ Le plus simple : l'installateur en une ligne
 
-Rien à installer, pas de Terminal :
+1. Ouvre l'app **Terminal** (Launchpad → Autres → Terminal, ou ⌘ Espace puis tape « Terminal »).
+2. Colle cette ligne puis appuie sur **Entrée** :
 
-1. Ouvre l'onglet **[Releases](../../releases/latest)** de la page GitHub.
-2. Télécharge le bon fichier :
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/KodeNoir/fantasy-renamer/main/install.sh | bash
+   ```
+
+3. C'est tout. Le script :
+   - détecte la puce du Mac (Intel ou Apple Silicon) et télécharge la bonne version ;
+   - installe **Fantasy Renamer** dans le dossier **Applications** ;
+   - retire le blocage de macOS (« Apple n'a pas pu confirmer que… ne contenait pas de logiciel malveillant ») ;
+   - lance l'application.
+
+Pour mettre à jour plus tard, il suffit de relancer la même ligne.
+
+> **Pourquoi ce message de macOS ?** Une app téléchargée avec un navigateur est marquée « venant d'Internet », et macOS la bloque si elle n'est pas signée avec un compte Apple Developer (99 $/an). L'installateur télécharge l'app avec `curl` puis retire ce marquage (`xattr -dr com.apple.quarantine`). Le code de l'installateur est lisible dans [`install.sh`](install.sh).
+
+### Installation manuelle (sans Terminal)
+
+1. Ouvre l'onglet **[Releases](../../releases/latest)** et télécharge le bon fichier :
    - Mac à **puce Apple** (M1, M2, M3, M4) → `FantasyRenamer-arm64.zip`
    - Mac **Intel** → `FantasyRenamer-x86_64.zip`
    *(Pour savoir quelle puce a ton Mac : menu  → À propos de ce Mac.)*
-3. Double-clique sur le ZIP, puis glisse l'app dans **Applications**.
-4. Premier lancement : clic droit → **Ouvrir** (sur macOS 15 et plus : Réglages Système → Confidentialité et sécurité → **Ouvrir quand même**).
-
-Ces apps sont compilées et testées automatiquement par GitHub (voir [Publication automatique](#publication-automatique-github-actions)).
+2. Double-clique sur le ZIP, puis glisse l'app dans **Applications**.
+3. Ouvre l'app. Si macOS affiche « Apple n'a pas pu confirmer… » : clique sur **Terminé**, puis va dans **Réglages Système → Confidentialité et sécurité**, descends et clique sur **Ouvrir quand même**.
 
 ### Autre méthode : lancer depuis le code source
 
@@ -240,6 +254,7 @@ Le script applique ensuite une signature *ad hoc* (`codesign --sign -`), obligat
 
 | Problème | Solution |
 |---|---|
+| « Apple n'a pas pu confirmer que… ne contenait pas de logiciel malveillant » | Utilise l'installateur en une ligne (section 1), ou Réglages Système → Confidentialité et sécurité → **Ouvrir quand même**. |
 | « Python 3.12 est nécessaire » | Installe Python 3.12 *universal2* depuis python.org (voir étape 1). |
 | Le `.command` ne s'ouvre pas / « permission refusée » | Dans le Terminal : `chmod +x "Lancer Fantasy Renamer.command"`, puis réessaie. |
 | L'installation échoue (pip) | Vérifie la connexion Internet. Supprime le dossier caché `.venv` (dans le Finder, ⇧⌘. affiche les fichiers cachés) et relance. |
