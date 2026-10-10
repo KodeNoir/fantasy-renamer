@@ -87,6 +87,27 @@ jobs:
           "$APP" --cli ci_images ci_out_app
           ls ci_out_app
 
+      - name: Tester le script « 1 clic » (retrait du blocage macOS)
+        run: |
+          rm -rf t && mkdir t && ditto -x -k "dist/FantasyRenamer-${{ matrix.arch }}.zip" t
+          echo "Contenu du ZIP :"; ls -la t
+          APP="t/Fantasy Renamer.app"
+          test -d "$APP"
+          test -f "t/OUVREZ-MOI_D-ABORD.applescript"
+          # Simule un téléchargement par navigateur : marquage de quarantaine partout
+          Q="0081;00000000;Safari;"
+          xattr -r -w com.apple.quarantine "$Q" "$APP" 2>/dev/null || true
+          xattr -w com.apple.quarantine "$Q" "$APP"
+          xattr -w com.apple.quarantine "$Q" "t/OUVREZ-MOI_D-ABORD.applescript"
+          xattr -p com.apple.quarantine "$APP"
+          # Exécute le script comme le ferait le bouton ▶︎ Exécuter (sans dialogues)
+          FR_CI=1 osascript "t/OUVREZ-MOI_D-ABORD.applescript"
+          if xattr -r "$APP" | grep -q com.apple.quarantine; then echo "❌ Quarantaine encore présente"; exit 1; fi
+          echo "✅ Quarantaine retirée"
+          sleep 20
+          if pgrep -f "t/Fantasy Renamer.app/Contents/MacOS" >/dev/null; then echo "✅ App lancée"; else echo "❌ App non lancée"; exit 1; fi
+          pkill -f "t/Fantasy Renamer.app/Contents/MacOS" || true
+
       - name: Mettre l'app à disposition (Artifacts)
         uses: actions/upload-artifact@v4
         with:
